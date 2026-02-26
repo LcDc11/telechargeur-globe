@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Besoin d'un lien — PlanNet Globe</title>
+  <link rel="stylesheet" href="style_v2.css" />
+</head>
+<body>
+
+  <!-- STARS BACKGROUND -->
+  <div class="stars-container">
+      <div class="star-layer l1"></div>
+      <div class="star-layer l2"></div>
+      <div class="star-layer l3"></div>
+      <div class="shooting-star"></div>
+      <div class="shooting-star"></div>
+      <div class="shooting-star"></div>
+  </div>
+
+  <!-- ROCKET CONTAINER -->
+  <div class="rocket-container" id="rocket">
+      <!-- SVG Definition -->
+      <svg class="rocket-svg" viewBox="0 0 200 600" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+              <!-- Rust Texture Filter -->
+              <filter id="rustFilters">
+                  <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="5" result="noise" />
+                  <feColorMatrix type="matrix" in="noise" result="coloredNoise"
+                      values="0.5 0 0 0 0
+                              0 0.2 0 0 0
+                              0 0 0 0 0
+                              0 0 0 1 0" />
+                  <feComposite operator="in" in="coloredNoise" in2="SourceGraphic" result="composite" />
+                  <feBlend mode="multiply" in="composite" in2="SourceGraphic" />
+              </filter>
+              
+              <!-- Metallic Gradient (Old Steel) -->
+              <linearGradient id="hullGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#2a2a2a" /> <!-- Dark Shadow side -->
+                  <stop offset="30%" stop-color="#555" /> 
+                  <stop offset="50%" stop-color="#777" /> <!-- Highlight -->
+                  <stop offset="80%" stop-color="#444" />
+                  <stop offset="100%" stop-color="#1a1a1a" />
+              </linearGradient>
+
+               <!-- Copper/Rusty Gradient for fins -->
+               <linearGradient id="finGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#4d2600" />
+                  <stop offset="50%" stop-color="#8c4d00" /> 
+                  <stop offset="100%" stop-color="#331a00" />
+              </linearGradient>
+
+              <!-- Cockpit Glass -->
+              <radialGradient id="glassGradient" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#aaddff" stop-opacity="0.8"/>
+                  <stop offset="100%" stop-color="#004466" stop-opacity="0.9"/>
+              </radialGradient>
+          </defs>
+
+          <!-- Main Body -->
+          <!-- Using a group with the rust filter applied -->
+          <g filter="url(#rustFilters)">
+              <!-- Fuselage: Cigar shape -->
+              <path d="M100 20 
+                       C 140 80, 160 200, 160 400 
+                       L 160 500 
+                       C 160 520, 140 540, 100 540 
+                       C 60 540, 40 520, 40 500 
+                       L 40 400 
+                       C 40 200, 60 80, 100 20 Z" 
+                    fill="url(#hullGradient)" stroke="#111" stroke-width="2" />
+              
+              <!-- Fins (back) -->
+              <path d="M100 400 L 100 550" stroke="#000" stroke-width="2" />
+
+              <!-- Left Fin -->
+              <path d="M 45 400 
+                       L 10 500 
+                       L 10 580 
+                       L 50 530
+                       L 50 400 Z"
+                    fill="url(#finGradient)" stroke="#220f00" stroke-width="2"/>
+
+              <!-- Right Fin -->
+              <path d="M 155 400 
+                       L 190 500 
+                       L 190 580 
+                       L 150 530
+                       L 150 400 Z"
+                    fill="url(#finGradient)" stroke="#220f00" stroke-width="2"/>
+              
+              <!-- Central Fin (Front perspective) -->
+              <path d="M 100 400 L 100 580 L 100 530" stroke="#331a00" stroke-width="4" />
+
+              <!-- Panel lines / Welding Seams for realism -->
+              <path d="M 42 150 Q 100 160 158 150" fill="none" stroke="#222" stroke-width="1" opacity="0.5"/>
+              <path d="M 40 250 Q 100 260 160 250" fill="none" stroke="#222" stroke-width="1" opacity="0.5"/>
+              <path d="M 40 350 Q 100 360 160 350" fill="none" stroke="#222" stroke-width="1" opacity="0.5"/>
+
+              <!-- Rivets (simple dots) along seams -->
+              <circle cx="50" cy="151" r="1.5" fill="#111" opacity="0.6"/>
+              <circle cx="70" cy="154" r="1.5" fill="#111" opacity="0.6"/>
+              <circle cx="90" cy="155" r="1.5" fill="#111" opacity="0.6"/>
+              <circle cx="110" cy="155" r="1.5" fill="#111" opacity="0.6"/>
+              <circle cx="130" cy="154" r="1.5" fill="#111" opacity="0.6"/>
+              <circle cx="150" cy="151" r="1.5" fill="#111" opacity="0.6"/>
+          </g>
+
+          <!-- Window -->
+          <circle cx="100" cy="120" r="25" fill="#333" stroke="#555" stroke-width="4"/>
+          <circle cx="100" cy="120" r="20" fill="url(#glassGradient)"/>
+          
+          <!-- Reflection on glass -->
+          <path d="M 90 110 Q 95 105 105 110" fill="none" stroke="#fff" stroke-width="2" opacity="0.6"/>
+          
+          <!-- Engine Glow -->
+          <ellipse cx="100" cy="540" rx="20" ry="5" fill="#333" />
+          
+          <!-- Exhaust Flames -->
+          <path d="M 80 545 L 100 600 L 120 545 Z" fill="#ffaa00" opacity="0.8">
+             <animate attributeName="d" values="M 80 545 L 100 590 L 120 545 Z; M 82 545 L 100 610 L 118 545 Z; M 80 545 L 100 590 L 120 545 Z" dur="0.2s" repeatCount="indefinite"/>
+          </path>
+      </svg>
+  </div>
+
+
+  <main class="chantier-page">
+    <section class="chantier-card" id="landing" aria-label="Besoin d'un lien">
+      <p class="badge">RUBRIQUE</p>
+      <h1>Besoin d'un lien</h1>
+      <p class="desc">Convertissez vos vidéos YouTube en MP3 facilement et rapidement dans une expérience interstellaire.</p>
+      <div class="buttons">
+        <button class="btn primary" id="startBtn">Commencer l'extraction</button>
+        <a class="btn secondary" href="../TriDoc/index.html">Retour à la base</a>
+      </div>
+    </section>
+    
+    <section class="chantier-card hidden" id="converter" aria-label="Convertisseur YouTube to MP3">
+      <h2>Mission: Extraction Audio</h2>
+      <input type="url" id="urlInput" placeholder="Collez les coordonnées (URL YouTube)" required>
+      <button class="btn primary" id="convertBtn">Lancer la fusée (Convertir)</button>
+      <button class="btn secondary" id="backBtn" style="margin-top: 10px;">Annuler la mission</button>
+      <div id="status" class="status"></div>
+    </section>
+  </main>
+
+  <script>
+    const startBtn = document.getElementById('startBtn');
+    const landing = document.getElementById('landing');
+    const converter = document.getElementById('converter');
+    const urlInput = document.getElementById('urlInput');
+    const convertBtn = document.getElementById('convertBtn');
+    const backBtn = document.getElementById('backBtn');
+    const status = document.getElementById('status');
+    const rocket = document.getElementById('rocket');
+    const defaultLocalApi = 'http://localhost:3000';
+    const params = new URLSearchParams(window.location.search);
+    const accessToken = String(params.get('token') || '').trim();
+
+    const normalizeOrigin = (value) => {
+      if (!value) return null;
+      try {
+        const parsed = new URL(value, window.location.href);
+        return parsed.origin;
+      } catch (_error) {
+        return null;
+      }
+    };
+
+    const apiFromQuery = normalizeOrigin(params.get('api'));
+
+    const withToken = (urlString) => {
+      if (!accessToken) {
+        return urlString;
+      }
+
+      const url = new URL(urlString, window.location.href);
+      if (!url.searchParams.has('token')) {
+        url.searchParams.set('token', accessToken);
+      }
+      return url.toString();
+    };
+
+    const fetchWithTimeout = async (resource, options = {}, timeout = 1500) => {
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), timeout);
+
+      try {
+        return await fetch(resource, { ...options, signal: controller.signal });
+      } finally {
+        window.clearTimeout(timeoutId);
+      }
+    };
+
+    const canUseBackend = async (origin) => {
+      try {
+        const healthResponse = await fetchWithTimeout(withToken(`${origin}/health`), { method: 'GET' }, 1200);
+        if (healthResponse.ok) {
+          return true;
+        }
+      } catch (_error) {
+        // Ignore and try fallback below for cross-origin cases.
+      }
+
+      try {
+        await fetchWithTimeout(withToken(`${origin}/health`), { method: 'GET', mode: 'no-cors' }, 1200);
+        return true;
+      } catch (_error) {
+        return false;
+      }
+    };
+
+    const resolveApiBase = async () => {
+      const isHttp = window.location.protocol === 'http:' || window.location.protocol === 'https:';
+      const currentOrigin = isHttp ? window.location.origin : null;
+      const candidates = [
+        apiFromQuery,
+        currentOrigin,
+        defaultLocalApi
+      ].filter(Boolean);
+
+      for (const candidate of candidates) {
+        if (await canUseBackend(candidate)) {
+          return candidate;
+        }
+      }
+
+      return null;
+    };
+
+    startBtn.addEventListener('click', () => {
+      landing.classList.add('hidden');
+      converter.classList.remove('hidden');
+    });
+
+    if (backBtn) {
+        backBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            landing.classList.remove('hidden');
+            converter.classList.add('hidden');
+            status.textContent = '';
+        });
+    }
+
+    convertBtn.addEventListener('click', async () => {
+      const url = urlInput.value.trim();
+      if (!url) {
+        status.textContent = 'Veuillez entrer une coordonnée valide.';
+        return;
+      }
+
+      status.textContent = 'Préparation au lancement...';
+      convertBtn.disabled = true;
+
+      try {
+        const apiBase = await resolveApiBase();
+        if (!apiBase) {
+          throw new Error('Backend introuvable. Utilisez un backend HTTPS public, ou ajoutez ?api=https://votre-backend&token=VOTRE_TOKEN à l\'URL.');
+        }
+
+        /* --- LAUNCH THE ROCKET --- */
+        if (rocket) {
+             rocket.style.display = 'block';
+             rocket.classList.remove('rocket-fly');
+             void rocket.offsetWidth; 
+             rocket.classList.add('rocket-fly');
+        }
+
+        status.textContent = 'Extraction en cours... (Suivez la fusée)';
+        
+        // Wait briefly for visual effect before navigating to download
+        setTimeout(() => {
+             const downloadUrl = new URL(`${apiBase}/download`);
+             downloadUrl.searchParams.set('url', url);
+             if (accessToken) {
+               downloadUrl.searchParams.set('token', accessToken);
+             }
+             window.location.href = downloadUrl.toString();
+             
+             // Reset UI a few seconds later
+             setTimeout(() => {
+                status.textContent = 'Mission accomplie (Téléchargement lancé).';
+                convertBtn.disabled = false;
+                urlInput.value = '';
+             }, 4000);
+        }, 1500);
+
+      } catch (error) {
+        status.textContent = error.message;
+        convertBtn.disabled = false;
+      }
+    });
+
+    resolveApiBase().catch(() => {});
+  </script>
+</body>
+</html>

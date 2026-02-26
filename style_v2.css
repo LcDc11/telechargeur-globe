@@ -1,0 +1,456 @@
+:root {
+  --space-bg: #0b0d17;
+  --star-color: #ffffff;
+  --card-glass: rgba(20, 25, 40, 0.65);
+  --card-border: rgba(255, 255, 255, 0.1);
+  --text: #e0e6ed;
+  --subtext: #94a3b8;
+  --accent: #4cc9f0;
+  --accent-glow: rgba(76, 201, 240, 0.4);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--text);
+  background-color: var(--space-bg);
+  background-image: radial-gradient(circle at 50% 50%, #1b2735 0%, #090a0f 100%);
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* --- STARRY BACKGROUND -- */
+.stars-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.star-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: transparent;
+}
+
+.l1 {
+  width: 1px;
+  height: 1px;
+  animation: floatUp 100s linear infinite;
+  box-shadow: 
+      10vw 10vh #fff, 20vw 50vh #fff, 30vw 20vh #fff, 40vw 80vh #fff, 
+      50vw 30vh #fff, 60vw 90vh #fff, 70vw 40vh #fff, 80vw 10vh #fff, 
+      15vw 75vh #fff, 25vw 15vh #fff, 35vw 95vh #fff, 45vw 45vh #fff, 
+      55vw 5vh #fff, 65vw 55vh #fff, 75vw 85vh #fff, 85vw 25vh #fff, 
+      95vw 65vh #fff, 5vw 35vh #fff, 98vw 5vh #fff, 12vw 12vh 0 -0.5px #aaa, 
+      82vw 82vh 0 -0.5px #bbb, 32vw 32vh 0 -0.5px #ccc, 62vw 62vh 0 -0.5px #ddd;
+}
+
+.l2 {
+  width: 2px;
+  height: 2px;
+  animation: floatUp 150s linear infinite;
+  box-shadow: 
+      30vw 40vh #FFF, 70vw 20vh #FFF, 10vw 80vh #FFF,
+      50vw 60vh #aaaccf, 90vw 30vh #FFF, 20vw 50vh #FFF,
+      60vw 90vh #FFF, 40vw 10vh #FFF, 80vw 70vh #FFF;
+  opacity: 0.6;
+}
+
+.l3 {
+  width: 3px;
+  height: 3px;
+  animation: floatUp 200s linear infinite;
+  box-shadow: 
+      15vw 25vh #FFF, 75vw 55vh #FFF, 35vw 85vh #99a,
+      55vw 15vh #FFF, 95vw 65vh #FFF;
+  opacity: 0.4;
+  filter: blur(1px);
+}
+
+@keyframes floatUp {
+  from { transform: translateY(0); }
+  to { transform: translateY(-1000px); }
+}
+
+/* --- SHOOTING STARS --- */
+.shooting-star {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  background: linear-gradient(-45deg, #5f91ff, rgba(0, 0, 255, 0));
+  border-radius: 999px;
+  filter: drop-shadow(0 0 6px #699bff);
+  animation: tail 3000ms ease-in-out infinite, shooting 3000ms ease-in-out infinite;
+  opacity: 0; /* Hidden until animation starts/randomly shows */
+}
+
+/* We need distinct animations for them to look random, handled by nth-child delays below */
+
+.shooting-star::before {
+  content: '';
+  position: absolute;
+  top: calc(50% - 1px);
+  right: 0;
+  height: 2px;
+  background: linear-gradient(-45deg, rgba(0, 0, 255, 0), #5f91ff, rgba(0, 0, 255, 0));
+  transform: translateX(50%) rotateZ(45deg);
+  border-radius: 100%;
+  animation: shining 3000ms ease-in-out infinite;
+  width: 300px;
+}
+
+.shooting-star::after {
+  content: '';
+  position: absolute;
+  top: calc(50% - 1px);
+  right: 0;
+  height: 2px;
+  background: linear-gradient(-45deg, rgba(0, 0, 255, 0), #5f91ff, rgba(0, 0, 255, 0));
+  transform: translateX(50%) rotateZ(45deg);
+  border-radius: 100%;
+  animation: shining 3000ms ease-in-out infinite;
+  width: 300px; 
+}
+
+/* Randomize shooting stars */
+.shooting-star:nth-child(1) { top: 0; left: 50%; animation-delay: 2s; opacity: 1; }
+.shooting-star:nth-child(2) { top: -100px; left: 10%; animation-delay: 6s; opacity: 1; }
+.shooting-star:nth-child(3) { top: 40%; left: 80%; animation-delay: 11s; opacity: 1; }
+
+@keyframes tail {
+  0% { width: 0; }
+  30% { width: 100px; }
+  100% { width: 0; }
+}
+
+@keyframes shooting {
+  0% { transform: translateX(0) translateY(0) rotateZ(45deg); }
+  100% { transform: translateX(300px) translateY(300px) rotateZ(45deg); }
+}
+
+@keyframes shining {
+  0% { width: 0; }
+  50% { width: 30px; }
+  100% { width: 0; }
+}
+
+
+/* --- LAYOUT --- */
+.chantier-page {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.5rem;
+  z-index: 10;
+}
+
+/* --- EXTREME SKEUOMORPHISM CARD --- */
+.chantier-card {
+  width: min(560px, 100%);
+  background: var(--card-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--card-border);
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 24px;
+  padding: 2.5rem 2rem;
+  
+  /* Deep space shadow + glow */
+  box-shadow: 
+    0 25px 60px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+    0 0 20px rgba(76, 201, 240, 0.05); /* Subtle ambient glow from accent */
+    
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Inner sheen */
+.chantier-card::after {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%; width: 200%; height: 200%;
+  background: linear-gradient(
+    to bottom right,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 40%,
+    transparent 50%
+  );
+  transform: rotate(30deg);
+  pointer-events: none;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  text-transform: uppercase;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  text-shadow: 0 0 12px var(--accent-glow);
+}
+
+h1, h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  background: linear-gradient(180deg, #ffffff, #b4c6db);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.desc {
+  color: var(--subtext);
+  line-height: 1.6;
+  margin-bottom: 2.5rem;
+  font-size: 1.1rem;
+  font-weight: 400;
+}
+
+/* --- INPUT STYLE --- */
+input[type="url"] {
+  width: 100%;
+  background: rgba(13, 17, 26, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 1.2rem;
+  border-radius: 14px;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: inset 0 2px 5px rgba(0,0,0,0.4);
+}
+
+input[type="url"]::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+input[type="url"]:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: rgba(13, 17, 26, 0.8);
+  box-shadow: 0 0 0 4px rgba(76, 201, 240, 0.15), inset 0 2px 5px rgba(0,0,0,0.4);
+}
+
+/* --- BUTTONS --- */
+.buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: relative;
+  z-index: 2;
+}
+
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: #fff;
+  padding: 1.1rem 1.5rem;
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+}
+
+/* Primary Button - Sci-Fi/Metallic */
+.btn.primary {
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  border-top: 1px solid rgba(255,255,255,0.2);
+  box-shadow: 
+    0 10px 20px -5px rgba(30, 60, 114, 0.4),
+    0 4px 6px -2px rgba(0, 0, 0, 0.2);
+}
+
+.btn.primary:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 
+    0 15px 30px -5px rgba(42, 82, 152, 0.5),
+    0 8px 10px -2px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #244682 0%, #3260b0 100%);
+}
+
+.btn.primary:active {
+  transform: translateY(-1px) scale(0.98);
+}
+
+/* Secondary Button - Glassy Outline */
+.btn.secondary {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.btn.secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #fff;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.3);
+}
+
+.status {
+  display: block;
+  margin-top: 1.5rem;
+  font-size: 0.95rem;
+  color: var(--accent);
+  min-height: 1.5em;
+  font-weight: 500;
+  text-shadow: 0 0 10px rgba(76, 201, 240, 0.3);
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* --- ROCKET ANIMATION CONTAINER --- */
+.rocket-container {
+    position: fixed;
+  top: clamp(16px, 8vh, 92px);
+    right: -250px; /* Start off-screen right */
+  transform: translateY(0) rotate(-90deg); /* Initial state: Off screen right, rotated */
+    width: 200px; /* Disrete size */
+    height: 400px;
+    z-index: 100;
+    pointer-events: none;
+    opacity: 0;
+    will-change: transform, right, opacity;
+}
+
+/* Subtle black smoke coming out of the engine (only visible during flight).
+   The rocket SVG points UP originally; we rotate it -90deg to fly LEFT.
+   So the engine ends up on the RIGHT side of the container => smoke trails to the RIGHT. */
+.rocket-container::before,
+.rocket-container::after {
+  content: '';
+  position: absolute;
+  right: -12px;
+  top: 56%;
+  width: 170px;
+  height: 90px;
+  background: radial-gradient(circle at 0% 50%, rgba(0, 0, 0, 0.14) 0%, rgba(0, 0, 0, 0.06) 34%, rgba(0, 0, 0, 0) 78%);
+  filter: blur(12px);
+  opacity: 0;
+  transform: translateY(-50%) translateX(0) scale(0.5);
+  pointer-events: none;
+  mix-blend-mode: normal;
+}
+
+.rocket-container::before {
+  width: 210px;
+  height: 120px;
+  filter: blur(18px);
+  background: radial-gradient(circle at 0% 50%, rgba(0, 0, 0, 0.09) 0%, rgba(0, 0, 0, 0.04) 42%, rgba(0, 0, 0, 0) 82%);
+}
+
+/* This is the class we add to START the flight */
+.rocket-fly {
+    animation: 
+        fadeIn 1s forwards,  /* Fade in quickly */
+        flyAcross 20s cubic-bezier(0, .28, .54, .99) forwards; /* 20s flight time */
+        
+}
+
+/* Smoke animations only while flying */
+.rocket-container.rocket-fly::after {
+  animation: smokePuff 1.35s ease-out infinite;
+}
+
+.rocket-container.rocket-fly::before {
+  animation: smokePuff2 1.9s ease-out infinite;
+  animation-delay: 0.35s;
+}
+
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
+
+@keyframes smokePuff {
+  0% {
+    opacity: 0;
+    transform: translateY(-50%) translateX(0) scale(0.44);
+  }
+  18% {
+    opacity: 0.12;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-55%) translateX(70px) scale(1.1);
+  }
+}
+
+@keyframes smokePuff2 {
+  0% {
+    opacity: 0;
+    transform: translateY(-50%) translateX(0) scale(0.34);
+  }
+  22% {
+    opacity: 0.08;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-57%) translateX(95px) scale(1.35);
+  }
+}
+
+/* Keyframes for right-to-left traversal */
+/* We animate 'right' property or transform: translateX. Translate is smoother. */
+/* Let's use fixed positioning and animate 'right' for simplicity combined with slight wobble transform */
+@keyframes flyAcross {
+    0% {
+        right: -300px;
+    transform: translateY(0px) rotate(-90deg) scale(0.6);
+    }
+    10% {
+    transform: translateY(-10px) rotate(-92deg) scale(0.6);
+    }
+    25% {
+    transform: translateY(6px) rotate(-88deg) scale(0.6);
+    }
+    50% {
+        /* Mid screen approx */
+    transform: translateY(0px) rotate(-90deg) scale(0.6);
+    }
+    75% {
+    transform: translateY(-7px) rotate(-91deg) scale(0.6);
+    }
+    100% {
+        right: 120%; /* Way off to the left */
+    transform: translateY(0px) rotate(-90deg) scale(0.6);
+    }
+}
+
+/* The SVG itself */
+svg.rocket-svg {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0px 10px 15px rgba(0,0,0,0.5));
+    /* Rust filters handled in SVG defs */
+}

@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contrôleur Serveur — PlanNet Globe</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1020;
+      --card: #131a2f;
+      --line: #253056;
+      --text: #e8ecff;
+      --muted: #9aa4c7;
+      --ok: #14d67a;
+      --warn: #ffcc66;
+      --err: #ff6b6b;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, Segoe UI, Arial, sans-serif;
+      background: radial-gradient(circle at 20% 10%, #182447 0%, var(--bg) 45%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .wrap {
+      width: min(980px, 92vw);
+      margin: 40px auto;
+      display: grid;
+      gap: 16px;
+    }
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.35rem;
+    }
+
+    .sub {
+      color: var(--muted);
+      margin-top: 4px;
+      font-size: 0.95rem;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 1px solid var(--line);
+      background: #1a2442;
+      color: var(--text);
+      border-radius: 8px;
+      padding: 8px 12px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .btn:hover { filter: brightness(1.1); }
+
+    .status {
+      border: 1px solid var(--line);
+      background: var(--card);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      padding: 6px 12px;
+      font-size: 0.9rem;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--err);
+      box-shadow: 0 0 10px var(--err);
+    }
+
+    .dot.ok {
+      background: var(--ok);
+      box-shadow: 0 0 10px var(--ok);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      background: var(--card);
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .value {
+      font-size: 1.05rem;
+      font-weight: 600;
+      word-break: break-word;
+    }
+
+    .value.warn { color: var(--warn); }
+    .value.err { color: var(--err); }
+
+    .footer {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .quick-actions {
+      border: 1px solid var(--line);
+      background: var(--card);
+      border-radius: 12px;
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .quick-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .cmd-box {
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      padding: 8px 10px;
+      background: #0f1630;
+      font-family: Consolas, monospace;
+      font-size: 0.9rem;
+      word-break: break-word;
+    }
+
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+    }
+
+    .list-block {
+      border: 1px solid var(--line);
+      background: var(--card);
+      border-radius: 12px;
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .mono-list {
+      max-height: 220px;
+      overflow: auto;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      padding: 8px;
+      background: #0f1630;
+      font-family: Consolas, monospace;
+      font-size: 0.82rem;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="top">
+      <div>
+        <h1>Contrôleur serveur</h1>
+        <div class="sub">Surveillance temps réel du convertisseur PlanNet Globe</div>
+      </div>
+      <div class="actions">
+        <a class="btn" href="/TriDoc/index.html">Retour services</a>
+        <a class="btn" href="/chantier/index.html">Ouvrir convertisseur</a>
+        <button class="btn" id="refreshBtn" type="button">Rafraîchir</button>
+      </div>
+    </section>
+
+    <section class="status">
+      <div class="chip"><span id="statusDot" class="dot"></span><span id="statusText">Vérification...</span></div>
+      <div class="footer">Dernière mise à jour: <span id="updatedAt">-</span></div>
+    </section>
+
+    <section class="quick-actions" aria-label="Actions rapides serveur">
+      <div class="label">Actions rapides</div>
+      <div class="quick-row">
+        <button class="btn" id="healthBtn" type="button">Tester /health</button>
+        <button class="btn" id="openLogsBtn" type="button">Ouvrir logs</button>
+        <button class="btn" id="copyRestartBtn" type="button">Relancer commande serveur affichée</button>
+      </div>
+      <div class="label">Commande de relance</div>
+      <div class="cmd-box" id="restartCommand">npm start</div>
+      <div class="footer" id="quickMessage">Prêt.</div>
+    </section>
+
+    <section class="grid">
+      <article class="card"><div class="label">Service</div><div class="value" id="service">-</div></article>
+      <article class="card"><div class="label">Port</div><div class="value" id="port">-</div></article>
+      <article class="card"><div class="label">PID</div><div class="value" id="pid">-</div></article>
+      <article class="card"><div class="label">Uptime</div><div class="value" id="uptime">-</div></article>
+
+      <article class="card"><div class="label">Conversions totales</div><div class="value" id="total">-</div></article>
+      <article class="card"><div class="label">Conversions actives</div><div class="value" id="active">-</div></article>
+      <article class="card"><div class="label">Succès</div><div class="value" id="success">-</div></article>
+      <article class="card"><div class="label">Échecs</div><div class="value" id="failed">-</div></article>
+
+      <article class="card"><div class="label">Dernier succès</div><div class="value" id="lastSuccess">-</div></article>
+      <article class="card"><div class="label">Dernier échec</div><div class="value" id="lastFailure">-</div></article>
+      <article class="card" style="grid-column: 1 / -1;"><div class="label">Dernière erreur</div><div class="value warn" id="lastError">-</div></article>
+    </section>
+
+    <section class="quick-actions" aria-label="Analytics temps réel">
+      <div class="label">Analytics utilisateurs (temps réel)</div>
+      <div class="analytics-grid">
+        <article class="card"><div class="label">Utilisateurs actifs (5 min)</div><div class="value" id="anActiveUsers">0</div></article>
+        <article class="card"><div class="label">Utilisateurs uniques (24h)</div><div class="value" id="anUnique24h">0</div></article>
+        <article class="card"><div class="label">Utilisateurs suivis</div><div class="value" id="anTotalUsers">0</div></article>
+        <article class="card"><div class="label">Requêtes suivies</div><div class="value" id="anRequests">0</div></article>
+        <article class="card"><div class="label">Vues pages</div><div class="value" id="anPageViews">0</div></article>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="list-block">
+        <div class="label">Top pays (hits)</div>
+        <div class="mono-list" id="countryList">-</div>
+      </article>
+      <article class="list-block">
+        <div class="label">Pages les plus vues</div>
+        <div class="mono-list" id="pageList">-</div>
+      </article>
+      <article class="list-block" style="grid-column: 1 / -1;">
+        <div class="label">Derniers utilisateurs (heure, pays, IP, user-agent)</div>
+        <div class="mono-list" id="recentUsers">-</div>
+      </article>
+      <article class="list-block" style="grid-column: 1 / -1;">
+        <div class="label">Dernières activités (heure, route, IP, pays, statut)</div>
+        <div class="mono-list" id="recentEvents">-</div>
+      </article>
+      <article class="list-block" style="grid-column: 1 / -1;">
+        <div class="label">Erreurs conversion (téléchargement échoué + pays + ville + IP + heure + URL)</div>
+        <div class="quick-row" style="margin-bottom: 6px;">
+          <label class="label" for="errorWindow" style="margin: 0; align-self: center;">Fenêtre:</label>
+          <select id="errorWindow" class="btn" aria-label="Filtre temporel erreurs conversion">
+            <option value="15">15 min</option>
+            <option value="60">1 heure</option>
+            <option value="1440">24 heures</option>
+            <option value="0">Tout</option>
+          </select>
+          <span class="footer" id="errorWindowInfo">-</span>
+        </div>
+        <div class="mono-list" id="conversionErrors">-</div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const statusDot = document.getElementById('statusDot');
+    const statusText = document.getElementById('statusText');
+    const updatedAt = document.getElementById('updatedAt');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const healthBtn = document.getElementById('healthBtn');
+    const openLogsBtn = document.getElementById('openLogsBtn');
+    const copyRestartBtn = document.getElementById('copyRestartBtn');
+    const restartCommand = document.getElementById('restartCommand');
+    const quickMessage = document.getElementById('quickMessage');
+    const errorWindow = document.getElementById('errorWindow');
+    const errorWindowInfo = document.getElementById('errorWindowInfo');
+
+    const byId = (id) => document.getElementById(id);
+    const token = String(new URLSearchParams(window.location.search).get('token') || '').trim();
+
+    const withTokenPath = (pathValue) => {
+      if (!token) {
+        return pathValue;
+      }
+
+      const url = new URL(pathValue, window.location.origin);
+      if (!url.searchParams.has('token')) {
+        url.searchParams.set('token', token);
+      }
+      return `${url.pathname}${url.search}`;
+    };
+
+    document.querySelectorAll('a[href^="/"]').forEach((anchor) => {
+      anchor.setAttribute('href', withTokenPath(anchor.getAttribute('href')));
+    });
+
+    const formatDate = (iso) => {
+      if (!iso) return '-';
+      const date = new Date(iso);
+      if (Number.isNaN(date.getTime())) return '-';
+      return date.toLocaleString('fr-FR');
+    };
+
+    const formatUptime = (seconds) => {
+      const total = Number(seconds || 0);
+      const h = Math.floor(total / 3600);
+      const m = Math.floor((total % 3600) / 60);
+      const s = total % 60;
+      return `${h}h ${m}m ${s}s`;
+    };
+
+    const setOnline = (online, message) => {
+      statusDot.classList.toggle('ok', online);
+      statusText.textContent = message;
+    };
+
+    const formatList = (items, mapper) => {
+      if (!items || !items.length) {
+        return '-';
+      }
+
+      return items.map(mapper).join('\n');
+    };
+
+    const updateStatus = async () => {
+      try {
+        const response = await fetch(withTokenPath('/api/server/status'), { cache: 'no-store' });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        setOnline(Boolean(data.active), data.active ? 'Serveur actif' : 'Serveur inactif');
+
+        byId('service').textContent = data.service || '-';
+        byId('port').textContent = data.port ?? '-';
+        byId('pid').textContent = data.pid ?? '-';
+        byId('uptime').textContent = formatUptime(data.uptimeSec);
+        restartCommand.textContent = data.restartCommand || 'npm start';
+
+        byId('total').textContent = data.conversions?.total ?? 0;
+        byId('active').textContent = data.conversions?.active ?? 0;
+        byId('success').textContent = data.conversions?.success ?? 0;
+        byId('failed').textContent = data.conversions?.failed ?? 0;
+
+        byId('lastSuccess').textContent = formatDate(data.conversions?.lastSuccessAt);
+        byId('lastFailure').textContent = formatDate(data.conversions?.lastFailureAt);
+        byId('lastError').textContent = data.conversions?.lastError || '-';
+
+        updatedAt.textContent = new Date().toLocaleTimeString('fr-FR');
+      } catch (error) {
+        setOnline(false, 'Serveur indisponible');
+        updatedAt.textContent = new Date().toLocaleTimeString('fr-FR');
+        byId('lastError').textContent = error instanceof Error ? error.message : 'Erreur inconnue';
+      }
+    };
+
+    const showQuickMessage = (text) => {
+      quickMessage.textContent = text;
+    };
+
+    healthBtn.addEventListener('click', async () => {
+      try {
+        const response = await fetch(withTokenPath('/health'), { cache: 'no-store' });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        const payload = await response.json();
+        showQuickMessage(`Test /health OK — uptime ${formatUptime(payload.uptimeSec || 0)}`);
+      } catch (error) {
+        showQuickMessage(`Test /health échoué — ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
+      }
+    });
+
+    openLogsBtn.addEventListener('click', () => {
+      window.open(withTokenPath('/api/server/logs?tail=300'), '_blank', 'noopener');
+      showQuickMessage('Logs ouverts dans un nouvel onglet.');
+    });
+
+    copyRestartBtn.addEventListener('click', async () => {
+      const command = restartCommand.textContent || 'npm start';
+      try {
+        await navigator.clipboard.writeText(command);
+        showQuickMessage(`Commande copiée: ${command}`);
+      } catch (_error) {
+        showQuickMessage(`Copie impossible. Commande: ${command}`);
+      }
+    });
+
+    const updateAnalytics = async () => {
+      try {
+        const response = await fetch(withTokenPath('/api/server/analytics'), { cache: 'no-store' });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        byId('anActiveUsers').textContent = data.summary?.activeUsers ?? 0;
+        byId('anUnique24h').textContent = data.summary?.uniqueUsers24h ?? 0;
+        byId('anTotalUsers').textContent = data.summary?.totalUsersTracked ?? 0;
+        byId('anRequests').textContent = data.summary?.totalRequests ?? 0;
+        byId('anPageViews').textContent = data.summary?.totalPageViews ?? 0;
+
+        byId('countryList').textContent = formatList(data.countryBreakdown, (item) => `${item.country}  —  ${item.hits}`);
+        byId('pageList').textContent = formatList(data.topPages, (item) => `${item.path}  —  ${item.views}`);
+
+        byId('recentUsers').textContent = formatList(data.recentUsers, (user) => {
+          const time = formatDate(user.lastSeen);
+          const ua = String(user.userAgent || '-').slice(0, 90);
+          return `${time} | Pays: ${user.country} | Ville: ${user.city} | IP: ${user.ip} | ${user.requestCount} req | ${ua}`;
+        });
+
+        byId('recentEvents').textContent = formatList(data.recentEvents, (event) => {
+          const time = formatDate(event.time);
+          return `${time} | ${event.path} | IP: ${event.ip} | Pays: ${event.country} | Ville: ${event.city} | HTTP ${event.statusCode}`;
+        });
+      } catch (error) {
+        byId('countryList').textContent = `Erreur analytics: ${error instanceof Error ? error.message : 'inconnue'}`;
+      }
+    };
+
+    const updateConversionErrors = async () => {
+      try {
+        const selectedMinutes = Number(errorWindow.value || '15');
+        const response = await fetch(withTokenPath(`/api/server/conversion-errors?minutes=${selectedMinutes}&limit=120`), { cache: 'no-store' });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        errorWindowInfo.textContent = `${data.filteredCount ?? 0} erreur(s) sur ${data.totalTrackedErrors ?? 0}`;
+        byId('conversionErrors').textContent = formatList(data.recentErrors, (item) => {
+          const when = formatDate(item.time);
+          const safeUrl = String(item.url || '-').slice(0, 140);
+          return `${when} | Pays: ${item.country} | Ville: ${item.city} | IP: ${item.ip} | téléchargement échoué | ${item.reason} | ${safeUrl}`;
+        });
+      } catch (error) {
+        errorWindowInfo.textContent = 'Erreur de filtre';
+        byId('conversionErrors').textContent = `Erreur flux conversion: ${error instanceof Error ? error.message : 'inconnue'}`;
+      }
+    };
+
+    refreshBtn.addEventListener('click', updateStatus);
+    refreshBtn.addEventListener('click', updateAnalytics);
+    errorWindow.addEventListener('change', updateConversionErrors);
+    updateStatus();
+    updateAnalytics();
+    updateConversionErrors();
+    window.setInterval(() => {
+      updateStatus();
+      updateAnalytics();
+      updateConversionErrors();
+    }, 3000);
+  </script>
+</body>
+</html>
